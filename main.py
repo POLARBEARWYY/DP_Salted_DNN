@@ -37,8 +37,8 @@ if __name__ == "__main__":
         train_data, train_labels,  test_data,  test_labels = datasets.get_dataset(args, verbose=1)
         
         # 应用差分隐私预处理
-        epsilon = 100  # 设置差分隐私参数
-        train_data, test_data = exp_setup.preprocess_data_with_dp(train_data, test_data, epsilon)
+        #epsilon = 100  # 设置差分隐私参数
+        #train_data, test_data = exp_setup.preprocess_data_with_dp(train_data, test_data, epsilon)
         
         dataset = ((train_data, train_labels),(None,None), (test_data,  test_labels))      
     else:
