@@ -4,17 +4,17 @@
 import argparse
 import torch
 import torchvision
-import numpy as np
+#import numpy as np
 
 ## 添加差分隐私预处理函数：
-def add_differential_privacy(data, epsilon):
-    noise = np.random.laplace(0, 1/epsilon, data.shape)
-    return data + noise
+#def add_differential_privacy(data, epsilon):
+#    noise = np.random.laplace(0, 1/epsilon, data.shape)
+#    return data + noise
 
-def preprocess_data_with_dp(train_data, test_data, epsilon):
-    train_data = add_differential_privacy(train_data, epsilon)
-    test_data = add_differential_privacy(test_data, epsilon)
-    return train_data, test_data
+#def preprocess_data_with_dp(train_data, test_data, epsilon):
+#    train_data = add_differential_privacy(train_data, epsilon)
+#    test_data = add_differential_privacy(test_data, epsilon)
+#    return train_data, test_data
 
 def get_parser():
 
