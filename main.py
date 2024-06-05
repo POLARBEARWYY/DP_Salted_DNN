@@ -14,7 +14,6 @@ from src.models import simple_cnn, wide_resnet
 import exp_setup
 
 from torch.utils.data import DataLoader, TensorDataset
-import torch.optim as optim
 
 # 添加RDP机制需要添加以下内容
 from opacus import PrivacyEngine
@@ -22,13 +21,11 @@ from opacus import PrivacyEngine
 # 定义并添加RDP机制
 def add_rdp_mechanism(model, optimizer, dataloader, epsilon, delta, max_grad_norm):
     privacy_engine = PrivacyEngine(
-        model,
-        sample_rate=dataloader.batch_size / len(dataloader.dataset),
-        epochs=1,
+        module=model,
         max_grad_norm=max_grad_norm,
-        noise_multiplier=np.sqrt(2 * np.log(1.25 / delta)) / epsilon
+        noise_multiplier=np.sqrt(2 * np.log(1.25 / delta)) * max_grad_norm / epsilon
     )
-    privacy_engine.attach(optimizer)
+    privacy_engine.attach(optimizer, dataloader)
     return privacy_engine
 
 
