@@ -23,20 +23,14 @@ from opacus import PrivacyEngine
 def add_rdp_mechanism(model, optimizer, dataloader, epsilon, delta, max_grad_norm):
     privacy_engine = PrivacyEngine(
         model,
-        batch_size=dataloader.batch_size,
-        sample_size=len(dataloader.dataset),
+        sample_rate=dataloader.batch_size / len(dataloader.dataset),
         epochs=1,
         max_grad_norm=max_grad_norm,
         noise_multiplier=np.sqrt(2 * np.log(1.25 / delta)) / epsilon
     )
-    privacy_engine.make_private_with_epsilon(
-        optimizer=optimizer,
-        data_loader=dataloader,
-        target_epsilon=epsilon,
-        target_delta=delta,
-        max_grad_norm=max_grad_norm
-    )
+    privacy_engine.attach(optimizer)
     return privacy_engine
+
 
 if __name__ == "__main__":
 
