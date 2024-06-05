@@ -50,6 +50,15 @@ def get_parser():
     parser.add_argument('--lr', type=float, default=0.01, help='learning rate (default: 0.01)')#学习率
     parser.add_argument('--momentum', type=float, default=0.9, help='momentum (default: 0.9)')#动量参数
     parser.add_argument('--weight_decay', type=float, default=1e-4, help='weight decay (default: 1e-4)')#权重衰减参数
+    #parser.add_argument('--gpu_id', type=int, default=0, help='GPU ID to use (default: 0)')
+    parser.add_argument('--rand_seed', type=int, default=42, help='random seed (default: 42)')
+    #parser.add_argument('--reproducibility', type=bool, default=True, help='set reproducibility (default: True)')
+    #parser.add_argument('--split', type=int, default=0, help='data split setting (default: 0)')
+    #parser.add_argument('--num_classes', type=int, default=10, help='number of classes (default: 10)')
+    #parser.add_argument('--salt_layer', type=int, default=-1, help='salt layer setting (default: -1)')
+    #parser.add_argument('--num_input_channels', type=int, default=3, help='number of input channels (default: 3)')
+    #parser.add_argument('--dataset', type=str, default='cifar10', help='dataset to use (default: cifar10)')
+
 
     
     ## Standard DNN
