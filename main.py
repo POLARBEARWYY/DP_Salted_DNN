@@ -18,19 +18,14 @@ import torch.optim as optim
 
 # 添加RDP机制需要添加以下内容
 from opacus import PrivacyEngine
-from opacus.accountants import RDPAccountant
-
 
 # 定义并添加RDP机制
 def add_rdp_mechanism(model, optimizer, epsilon, delta, max_grad_norm):
     privacy_engine = PrivacyEngine(
-        model,
-        batch_size=64,
-        sample_size=len(train_data),
-        alphas=[1 + x / 10. for x in range(1, 100)],
+        module=model,
+        sample_rate=0.01,  # 这是一个示例，你需要根据你的数据集和批量大小进行调整
         noise_multiplier=np.sqrt(2 * np.log(1.25 / delta)) / epsilon,
         max_grad_norm=max_grad_norm,
-        accountant=RDPAccountant()
     )
     privacy_engine.attach(optimizer)
     return privacy_engine
@@ -99,32 +94,14 @@ if __name__ == "__main__":
     elif args.dataset == "pamap":
         summary(model, [(1, 1, 27, 200),(1,1,1,1)], device=args.device)  
    
-    # 设置RDP参数
-    epsilon = 1.0  # 选择合适的epsilon值
-    delta = 1e-5   # 选择合适的delta值
-    max_grad_norm = 1.0  # 设置最大梯度范数
-
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+# 添加RDP机制
+    epsilon = 1.0  # 根据需求设置
+    delta = 1e-5   # 根据需求设置
+    max_grad_norm = 1.0  # 根据需求设置
     privacy_engine = add_rdp_mechanism(model, optimizer, epsilon, delta, max_grad_norm)
 
-    # 训练模型
-    train_loader = DataLoader(TensorDataset(train_data, train_labels), batch_size=64, shuffle=True)
-    for epoch in range(20):
-        model.train()
-        for data, labels in train_loader:
-            data, labels = data.to(args.device), labels.to(args.device)
-            optimizer.zero_grad()
-            outputs = model(data)
-            loss = nn.CrossEntropyLoss()(outputs, labels)
-            loss.backward()
-            optimizer.step()
+    utils.train_test(args, model, dataset, save_model=True)
 
-        print(f"Epoch {epoch+1} completed.")
-
-    # 评估模型
-    test_loader = DataLoader(TensorDataset(test_data, test_labels), batch_size=64, shuffle=False)
-    utils.evaluate_model(args, model, test_loader)
-
-    # 打印隐私预算
-    epsilon_spent = privacy_engine.get_epsilon(delta)
-    print(f"Privacy budget spent: epsilon = {epsilon_spent:.2f}, delta = {delta}")
+    # 输出隐私消耗
+    epsilon_spent, best_alpha = privacy_engine.get_privacy_spent(delta)
+    print(f"Privacy spent: (ε = {epsilon_spent:.2f}, δ = {delta}) at alpha = {best_alpha}")
