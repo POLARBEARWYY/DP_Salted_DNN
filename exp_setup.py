@@ -48,6 +48,8 @@ def get_parser():
     parser.add_argument('--exp_name',   default="private_exp_1", help="The name of expriment.") 
     ## RDP机制
     parser.add_argument('--lr', type=float, default=0.01, help='learning rate (default: 0.01)')
+    parser.add_argument('--momentum', type=float, default=0.9, help='momentum (default: 0.9)')
+    
     ## Standard DNN
     # parser.add_argument('--salt_type',   default="none", help="none, cnn, or fc")    
     # parser.add_argument('--salt_layer',   default=-1, help="-1 for none or 0-8")    
