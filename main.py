@@ -93,8 +93,12 @@ if __name__ == "__main__":
             summary(model, [(1, args.num_input_channels, 32, 32),(1,args.num_classes)], device=args.device)       
     elif args.dataset == "pamap":
         summary(model, [(1, 1, 27, 200),(1,1,1,1)], device=args.device)  
-   
-# 添加RDP机制
+
+    
+    # Define your optimizer here
+    optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
+    
+    # 添加RDP机制
     epsilon = 1.0  # 根据需求设置
     delta = 1e-5   # 根据需求设置
     max_grad_norm = 1.0  # 根据需求设置
