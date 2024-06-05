@@ -47,8 +47,10 @@ def get_parser():
     parser.add_argument('--salt_layer',   default=3, help="-1 for none -- For CIFAR10 1, 3, 5 for cnn or 6, 7 for fc --- For PAMAP2 cnn with 2,3,4")    
     parser.add_argument('--exp_name',   default="private_exp_1", help="The name of expriment.") 
     ## RDP机制
-    parser.add_argument('--lr', type=float, default=0.01, help='learning rate (default: 0.01)')
-    parser.add_argument('--momentum', type=float, default=0.9, help='momentum (default: 0.9)')
+    parser.add_argument('--lr', type=float, default=0.01, help='learning rate (default: 0.01)')#学习率
+    parser.add_argument('--momentum', type=float, default=0.9, help='momentum (default: 0.9)')#动量参数
+    parser.add_argument('--weight_decay', type=float, default=1e-4, help='weight decay (default: 1e-4)')#权重衰减参数
+
     
     ## Standard DNN
     # parser.add_argument('--salt_type',   default="none", help="none, cnn, or fc")    
