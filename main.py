@@ -105,12 +105,18 @@ if __name__ == "__main__":
     
     # Define your optimizer here
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
-    
+
+
+    # 添加
+    train_dataset = TensorDataset(torch.tensor(train_data), torch.tensor(train_labels))
+    train_dataloader = DataLoader(train_dataset, batch_size=64, shuffle=True)
+
     # 添加RDP机制
     epsilon = 1.0  # 根据需求设置
     delta = 1e-5   # 根据需求设置
     max_grad_norm = 1.0  # 根据需求设置
     privacy_engine = add_rdp_mechanism(model, optimizer, train_dataloader, epsilon, delta, max_grad_norm)
+
     utils.train_test(args, model, dataset, save_model=True)
 
     # 输出隐私消耗
