@@ -16,11 +16,13 @@ import exp_setup
 from torch.utils.data import DataLoader, TensorDataset
 import torch.optim as optim
 
-# 添加
-from syft.frameworks.torch.dp import PrivacyEngine
+# 添加RDP机制需要添加以下内容
+from opacus import PrivacyEngine
+from opacus.accountants import RDPAccountant
 
-# 定义并添加zCDP机制
-def add_zcdp_mechanism(model, optimizer, epsilon, delta, max_grad_norm):
+
+# 定义并添加RDP机制
+def add_rdp_mechanism(model, optimizer, epsilon, delta, max_grad_norm):
     privacy_engine = PrivacyEngine(
         model,
         batch_size=64,
@@ -28,6 +30,7 @@ def add_zcdp_mechanism(model, optimizer, epsilon, delta, max_grad_norm):
         alphas=[1 + x / 10. for x in range(1, 100)],
         noise_multiplier=np.sqrt(2 * np.log(1.25 / delta)) / epsilon,
         max_grad_norm=max_grad_norm,
+        accountant=RDPAccountant()
     )
     privacy_engine.attach(optimizer)
     return privacy_engine
@@ -96,13 +99,13 @@ if __name__ == "__main__":
     elif args.dataset == "pamap":
         summary(model, [(1, 1, 27, 200),(1,1,1,1)], device=args.device)  
    
-    # 设置zCDP参数
+    # 设置RDP参数
     epsilon = 1.0  # 选择合适的epsilon值
     delta = 1e-5   # 选择合适的delta值
     max_grad_norm = 1.0  # 设置最大梯度范数
 
     optimizer = optim.Adam(model.parameters(), lr=0.001)
-    privacy_engine = add_zcdp_mechanism(model, optimizer, epsilon, delta, max_grad_norm)
+    privacy_engine = add_rdp_mechanism(model, optimizer, epsilon, delta, max_grad_norm)
 
     # 训练模型
     train_loader = DataLoader(TensorDataset(train_data, train_labels), batch_size=64, shuffle=True)
@@ -123,7 +126,5 @@ if __name__ == "__main__":
     utils.evaluate_model(args, model, test_loader)
 
     # 打印隐私预算
-    epsilon_spent, _ = privacy_engine.get_privacy_spent(delta)
+    epsilon_spent = privacy_engine.get_epsilon(delta)
     print(f"Privacy budget spent: epsilon = {epsilon_spent:.2f}, delta = {delta}")
-
-    utils.train_test(args, model, dataset, save_model=True)
