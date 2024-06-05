@@ -16,6 +16,22 @@ import exp_setup
 from torch.utils.data import DataLoader, TensorDataset
 import torch.optim as optim
 
+# 添加
+from syft.frameworks.torch.dp import PrivacyEngine
+
+# 定义并添加zCDP机制
+def add_zcdp_mechanism(model, optimizer, epsilon, delta, max_grad_norm):
+    privacy_engine = PrivacyEngine(
+        model,
+        batch_size=64,
+        sample_size=len(train_data),
+        alphas=[1 + x / 10. for x in range(1, 100)],
+        noise_multiplier=np.sqrt(2 * np.log(1.25 / delta)) / epsilon,
+        max_grad_norm=max_grad_norm,
+    )
+    privacy_engine.attach(optimizer)
+    return privacy_engine
+
 if __name__ == "__main__":
 
     args = exp_setup.get_parser().parse_args()
@@ -37,8 +53,8 @@ if __name__ == "__main__":
         train_data, train_labels,  test_data,  test_labels = datasets.get_dataset(args, verbose=1)
         
         # 应用差分隐私预处理
-        epsilon = 1000  # 设置差分隐私参数
-        train_data, test_data = exp_setup.preprocess_data_with_dp(train_data, test_data, epsilon)
+        #epsilon = 1000  # 设置差分隐私参数
+        #train_data, test_data = exp_setup.preprocess_data_with_dp(train_data, test_data, epsilon)
         
         dataset = ((train_data, train_labels),(None,None), (test_data,  test_labels))      
     else:
@@ -78,6 +94,36 @@ if __name__ == "__main__":
         else:
             summary(model, [(1, args.num_input_channels, 32, 32),(1,args.num_classes)], device=args.device)       
     elif args.dataset == "pamap":
-        summary(model, [(1, 1, 27, 200),(1,1,1,1)], device=args.device)    
+        summary(model, [(1, 1, 27, 200),(1,1,1,1)], device=args.device)  
+   
+    # 设置zCDP参数
+    epsilon = 1.0  # 选择合适的epsilon值
+    delta = 1e-5   # 选择合适的delta值
+    max_grad_norm = 1.0  # 设置最大梯度范数
+
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    privacy_engine = add_zcdp_mechanism(model, optimizer, epsilon, delta, max_grad_norm)
+
+    # 训练模型
+    train_loader = DataLoader(TensorDataset(train_data, train_labels), batch_size=64, shuffle=True)
+    for epoch in range(20):
+        model.train()
+        for data, labels in train_loader:
+            data, labels = data.to(args.device), labels.to(args.device)
+            optimizer.zero_grad()
+            outputs = model(data)
+            loss = nn.CrossEntropyLoss()(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+        print(f"Epoch {epoch+1} completed.")
+
+    # 评估模型
+    test_loader = DataLoader(TensorDataset(test_data, test_labels), batch_size=64, shuffle=False)
+    utils.evaluate_model(args, model, test_loader)
+
+    # 打印隐私预算
+    epsilon_spent, _ = privacy_engine.get_privacy_spent(delta)
+    print(f"Privacy budget spent: epsilon = {epsilon_spent:.2f}, delta = {delta}")
 
     utils.train_test(args, model, dataset, save_model=True)
