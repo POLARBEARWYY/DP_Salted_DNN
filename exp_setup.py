@@ -45,7 +45,9 @@ def get_parser():
     parser.add_argument('--salt_size',   default=10, help="In this version, this should be the same as num_classes")    
     parser.add_argument('--salt_type',   default="cnn", help="none, cnn, or fc")    
     parser.add_argument('--salt_layer',   default=3, help="-1 for none -- For CIFAR10 1, 3, 5 for cnn or 6, 7 for fc --- For PAMAP2 cnn with 2,3,4")    
-    parser.add_argument('--exp_name',   default="private_exp_1", help="The name of expriment.")    
+    parser.add_argument('--exp_name',   default="private_exp_1", help="The name of expriment.") 
+    ## RDP机制
+    parser.add_argument('--lr', type=float, default=0.01, help='learning rate (default: 0.01)')
     ## Standard DNN
     # parser.add_argument('--salt_type',   default="none", help="none, cnn, or fc")    
     # parser.add_argument('--salt_layer',   default=-1, help="-1 for none or 0-8")    
